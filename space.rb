@@ -1,5 +1,10 @@
 require 'gosu'
 
+# Do some ZOrder constant stuff
+module ZOrder
+  BACKGROUND, STARS, PLAYER, UI = *0..3
+end
+
 class Tutorial < Gosu::Window
   def initialize
     super 640, 480
@@ -9,6 +14,9 @@ class Tutorial < Gosu::Window
 
     @player = Player.new
     @player.warp(320, 240)
+
+    @star_anim = Gosu::Image.load_tiles('media/star.png', 25, 25)
+    @stars = []
   end
 
   def update
@@ -24,11 +32,17 @@ class Tutorial < Gosu::Window
       @player.accelerate
     end
     @player.move
+    @player.collect_stars(@stars)
+
+    if rand(100) < 4 and @stars.size < 25
+      @stars.push(Star.new(@star_anim))
+    end
   end
 
   def draw
     @player.draw
-    @background_image.draw(0, 0, 0)
+    @background_image.draw(0, 0, ZOrder::BACKGROUND)
+    @stars.each { |star| star.draw }
   end
 
   def button_down(id)
@@ -38,7 +52,6 @@ class Tutorial < Gosu::Window
       super
     end
   end
-
 end
 
 # Our Main Player Class
@@ -79,19 +92,22 @@ class Player
   def draw
     @image.draw_rot(@x, @y, 1, @angle)
   end
+
+  def score
+    @score
+  end
+
+  def collect_stars(stars)
+    stars.reject! { |star| Gosu.distance(@x, @y, star.x, star.y) < 35 }
+  end
+
 end
 
-# Do some ZOrder constant stuff
-module ZOrder
-  BACKGROUND, STARS, PLAYER, UI = *0..3
-end
-
-#Add some big star animations
-
+# Add some big star animations
 class Star
   attr_reader :x, :y
 
-  def initialize
+  def initialize(animation)
     @animation = animation
     @color = Gosu::Color::BLACK.dup
     @color.red = rand(256 - 40) + 40
@@ -101,7 +117,7 @@ class Star
   end
 
   def draw
-    img = @animation[Gosu.miliseconds / 100 % @animation.size]
+    img = @animation[Gosu.milliseconds / 100 % @animation.size]
     img.draw(@x - img.width / 2.0, @y - img.height / 2.0, ZOrder::STARS, 1, 1, @color, :add)
   end
 end
