@@ -31,6 +31,14 @@ class Tutorial < Gosu::Window
     @background_image.draw(0, 0, 0)
   end
 
+  def button_down(id)
+    if id == Gosu::KB_ESCAPE
+      close
+    else
+      super
+    end
+  end
+
 end
 
 # Our Main Player Class
