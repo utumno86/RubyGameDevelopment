@@ -21,6 +21,16 @@ class WhackaMole < Gosu::Window
       @mole.draw(@x - @width / 2, @y - @height / 2, 1)
     end
     @hammer.draw(mouse_x - 25, mouse_y - 39, 1)
+    if @hit == 0
+      c = Gosu::Color::NONE
+    elsif @hit == 1
+      c = Gosu::Color::GREEN
+    elsif @hit == -1
+      c = Gosu::Color::RED
+    end
+
+    draw_quad(0, 0, c, 800, 0, c, 800, 600, c, 0, 600, c)
+    @hit = 0
   end
 
   def update
@@ -33,6 +43,13 @@ class WhackaMole < Gosu::Window
   end
 
   def button_down(id)
+    if (id == Gosu::MsLeft)
+      if Gosu.distance(mouse_x, mouse_y, @x, @y) < 50 && @visible >= 0
+        @hit = 1
+      else
+        @hit = -1
+      end
+    end
   end
 
 
